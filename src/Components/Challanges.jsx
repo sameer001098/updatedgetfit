@@ -137,6 +137,29 @@ function Challanges() {
             video: null,
         });
     };
+const handleDelete = async (id) => {
+  if (!window.confirm('Are you sure you want to delete this challenge?')) return;
+
+  try {
+    const response = await axios.post(
+      'https://projects.funtashtechnologies.com/getfitapi/caloriesitems/deletechallanges.php',
+      { id },  // JSON body with id
+      {
+        headers: { 'Content-Type': 'application/json' }  // JSON content-type header
+      }
+    );
+
+    if (response.data.Result === "true") {
+      setChallenges((prev) => prev.filter((challenge) => challenge.id !== id));
+      alert('Challenge deleted successfully');
+    } else {
+      alert(response.data.ResponseMsg || 'Failed to delete challenge');
+    }
+  } catch (error) {
+    alert('Error deleting challenge');
+    console.error(error);
+  }
+};
 
     return (
         <div className='flex-lg-1 h-screen overflow-y-lg-auto'>
@@ -291,7 +314,11 @@ function Challanges() {
                                                 >
                                                     View
                                                 </button>
-                                                <button className="btn btn-sm btn-square btn-neutral text-danger-hover">
+                                                <button
+                                                    id={`delete-btn-${item.id}`}  // unique id for the delete button
+                                                    className="btn btn-sm btn-square btn-neutral text-danger-hover"
+                                                    onClick={() => handleDelete(item.id)}
+                                                >
                                                     <i className="bi bi-trash3-fill"></i>
                                                 </button>
                                             </td>
@@ -310,7 +337,7 @@ function Challanges() {
                                     onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
                                     disabled={currentPage === 1}
                                 >
-                                     <i className="bi bi-arrow-left"></i>
+                                    <i className="bi bi-arrow-left"></i>
                                 </button>
 
                                 <span className="me-2">Page {currentPage} of {totalPages}</span>
