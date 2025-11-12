@@ -45,7 +45,7 @@ function Addexercisecategories() {
 
      const fetchCategories = async () => {
         try {
-            const res = await fetch('https://projects.funtashtechnologies.com/getfitapi/getcategories.php');
+            const res = await fetch('https://projects.funtashtechnologies.com/getfitapi/getallcategories.php');
             const data = await res.json();
 
             if (data.ResponseCode === '200' && data.Result === 'true') {
