@@ -11,12 +11,13 @@ function Addexercises() {
   const [loading, setLoading] = useState(false);
   const [exercises, setExercises] = useState([]);
   const [formData, setFormData] = useState({
-    id: '',           
+    id: '',
     title: '',
     categoryid: '',
     categoryname: '',
     description: '',
-    day: '1'
+    day: '1',
+    type: ''
   });
 
   const thumbnailRef = useRef(null);
@@ -109,12 +110,14 @@ function Addexercises() {
     form.append('description', formData.description);
     form.append('day', formData.day);
     form.append('benefits', benefitsList.join(','));
+    form.append('type', formData.type);
 
     if (
       !formData.title ||
       !formData.categoryid ||
       !formData.categoryname ||
       !formData.description ||
+      !formData.type ||
       !formData.day ||
       benefitsList.length === 0 ||
       (!thumbnailRef.current?.files[0] && !formData.id) ||  // only require files if creating new
@@ -169,6 +172,7 @@ function Addexercises() {
           categoryid: exercise.categoryid || '',
           categoryname: exercise.category || '',
           description: exercise.description || '',
+          type: exercise.type || '',
           day: exercise.day || '1',
         });
 
@@ -204,7 +208,7 @@ function Addexercises() {
   return (
     <div className='flex-lg-1 h-screen overflow-y-lg-auto'>
       <Topbar />
-      <main className="py-6 px-3 bg-surface-secondary">
+      <main className="py-6 px-3 bg-surface-secondary ml-[250px]">
         <div className="container-fluid max-w-screen-lg vstack gap-5">
           <div className="modal fade" id="exampleModal" tabIndex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
             <div className="modal-dialog modal-lg">
@@ -219,15 +223,45 @@ function Addexercises() {
                       <label className="form-label">Title</label>
                       <input className="form-control" placeholder="Add Title" type="text" name="title" value={formData.title} onChange={handleChange} />
                     </div>
-                    <div className="col-md-4 mb-3">
-                      <label className="form-label">Select Category</label>
-                      <select className="form-select" onChange={handleCategorySelect} value={formData.categoryid} required>
-                        <option value="">Select Category</option>
-                        {categories.map(cat => (
-                          <option key={cat.id} value={cat.id}>{cat.categoryname}</option>
-                        ))}
+                      <div className="col-md-4 mb-3">
+                      <label className="form-label">Workout Type</label>
+                      <select
+                        name="type"
+                        className="form-select"
+                        value={formData.type}
+                        onChange={handleChange}
+                      >
+                        <option value="">Select Type</option>
+                        <option value="Home Workout">Home Workout</option>
+                        <option value="Yoga Workout">Yoga Workout</option>
+                        <option value="Intense Workout">Intense Workout</option>
+                           <option value="Gym Workout">Gym Workout</option>
                       </select>
                     </div>
+                   <div className="col-md-4 mb-3">
+  <label className="form-label">Select Category</label>
+  <select
+    className="form-select"
+    onChange={handleCategorySelect}
+    value={formData.categoryid}
+    required
+    disabled={!formData.type}   // disable until the user selects workout type
+  >
+    <option value="">
+      {formData.type ? "Select Category" : "Select Workout Type First"}
+    </option>
+
+    {categories
+      .filter(cat => cat.categorytype === formData.type)   // 🔥 FILTERING HERE
+      .map(cat => (
+        <option key={cat.id} value={cat.id}>
+          {cat.categoryname}
+        </option>
+      ))}
+  </select>
+</div>
+
+                  
                     <div className="col-md-4 mb-3">
                       <label className="form-label">Exercise Day</label>
                       <select name="day" className="form-select" value={formData.day} onChange={handleChange}>
@@ -326,6 +360,7 @@ function Addexercises() {
                     <tr>
                       <th>Sr No.</th>
                       <th>Title</th>
+                      <th>Type</th>
                       <th>Category</th>
                       <th>Exercise Day</th>
 
@@ -340,6 +375,7 @@ function Addexercises() {
                         <tr key={exercise.id}>
                           <td>{indexOfFirstItem + index + 1}</td> {/* Adjust Sr No. */}
                           <td>{exercise.title}</td>
+                          <td>{exercise.type}</td>
                           <td>{exercise.category}</td>
                           <td>{exercise.day}</td>
                           <td>
@@ -370,7 +406,7 @@ function Addexercises() {
                     onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
                     disabled={currentPage === 1}
                   >
-                       <i className="bi bi-arrow-left"></i>
+                    <i className="bi bi-arrow-left"></i>
                   </button>
 
                   <span className="me-2">Page {currentPage} of {totalPages}</span>

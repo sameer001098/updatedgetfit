@@ -1,9 +1,17 @@
 import { useEffect, useState } from "react";
-import logo from '../assets/images/logo.png'
-import { Link } from "react-router-dom";
+import logo from "../assets/images/newlogo.png";
+import { Link, useLocation } from "react-router-dom";
 
 function Header() {
+  const firstname = localStorage.getItem("getfitfirstname");
   const [isDarkMode, setIsDarkMode] = useState(false);
+
+  const [openCalories, setOpenCalories] = useState(false);
+  const [openExercises, setOpenExercises] = useState(false);
+  const [openUserDropdown, setOpenUserDropdown] = useState(false);
+
+  const location = useLocation();
+
   useEffect(() => {
     const savedTheme = localStorage.getItem("theme") || "light";
     document.documentElement.setAttribute("data-theme", savedTheme);
@@ -16,206 +24,189 @@ function Header() {
     localStorage.setItem("theme", newTheme);
     setIsDarkMode(!isDarkMode);
   };
-    const firstname = localStorage.getItem("getfitfirstname")
+
+  const activeClass =
+    "bg-primary/10 text-primary font-semibold dark:bg-primary/20 dark:text-primary";
+
   return (
-    <>
-      <nav
-        className="navbar show navbar-vertical h-lg-screen navbar-expand-lg px-0 py-3 navbar-light bg-white border-bottom border-bottom-lg-0 border-end-lg scrollbar"
-        id="sidebar"
-      >
-        <div className="container-fluid">
-          <button
-            className="navbar-toggler ms-n2"
-            type="button"
-            data-bs-toggle="collapse"
-            data-bs-target="#sidebarCollapse"
-            aria-controls="sidebarCollapse"
-            aria-expanded="false"
-            aria-label="Toggle navigation"
+    <nav className="w-64 d-none d-md-block h-screen bg-white dark:bg-gray-900 border-r border-gray-200 dark:border-gray-700 flex flex-col px-4 py-6 fixed left-0 top-0 overflow-y-auto shadow-lg">
+      
+      {/* Logo */}
+      <div className="flex justify-center mb-10 ">
+        <img src={logo} alt="logo" className="h-14 transition hover:scale-105" />
+      </div>
+
+      {/* Navigation */}
+      <ul className="space-y-1 px-0 mx-0">
+
+        {/* Dashboard */}
+         <li className="list-none mb-2">
+          <Link
+            to="/"
+            className={`flex items-center gap-3 px-4 py-2 rounded-lg transition-all duration-200 
+            hover:bg-gray-100 dark:hover:bg-gray-800 hover:ps-5
+            ${location.pathname === "/" ? activeClass : "text-gray-700 dark:text-gray-200"}`}
           >
-            <span className="navbar-toggler-icon"></span>
+            <i className="bi bi-house-door text-lg"></i>
+            Dashboard
+          </Link>
+        </li>
+
+        {/* Calories */}
+         <li className="list-none mb-2">
+          <button
+            onClick={() => setOpenCalories(!openCalories)}
+            className="w-full flex items-center justify-between px-4 py-2 rounded-lg 
+            text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800 
+            transition-all duration-200 hover:pl-5"
+          >
+            <span className="flex items-center gap-3">
+              <i className="bi bi-briefcase text-lg"></i> Calories
+            </span>
+            <i className={`bi bi-chevron-down transition-transform duration-300 ${openCalories ? "rotate-180" : ""}`}></i>
           </button>
 
-          <a className="navbar-brand d-flex justify-content-center py-lg-2 mb-lg-5 px-lg-6 me-0" href="/">
-            <img src={logo} className="navbarlogo" alt="..." />
-          </a>
-
-          <div className="navbar-user d-lg-none">
-            <div className="dropdown">
-              <a
-                href="#"
-                id="sidebarAvatar"
-                role="button"
-                data-bs-toggle="dropdown"
-                aria-haspopup="true"
-                aria-expanded="false"
-              >
-                <div className="avatar-parent-child">
-                  <img
-                    alt="..."
-                    src="/img/people/img-profile.jpg"
-                    className="avatar avatar- rounded-circle"
-                  />
-                  <span className="avatar-child avatar-badge bg-success"></span>
-                </div>
-              </a>
-              <div className="dropdown-menu dropdown-menu-end" aria-labelledby="sidebarAvatar">
-
-                <hr className="dropdown-divider" />
-                <Link to={"/logout"}  className="dropdown-item">Logout</Link>
-              </div>
-            </div>
-          </div>
-
-          <div className="collapse navbar-collapse" id="sidebarCollapse">
-            <ul className="navbar-nav">
-
-              <li className="nav-item">
-               
-                 <Link to={"/"} className="nav-link">
-                  <i className="bi bi-house-door"></i> Dashboard
-                 </Link>
-               
-              
-              </li>
-              <li className="nav-item">
-                <a
-                  className="nav-link collapsed"
-                  href="#sidebar-projects"
-                  data-bs-toggle="collapse"
-                  role="button"
-                  aria-expanded="false"
-                  aria-controls="sidebar-projects"
+          {openCalories && (
+            <ul className="ml-10 mt-1 space-y-1 animate-slideDown">
+               <li className="list-none">
+                <Link
+                  to="/addcategories"
+                  className="block px-3 py-2 text-sm rounded-lg text-gray-600 dark:text-gray-300 
+                  hover:bg-gray-100 dark:hover:bg-gray-800 transition-all hover:pl-4"
                 >
-                  <i className="bi bi-briefcase"></i> Calories
-                </a>
-                <div className="collapse" id="sidebar-projects">
-                  <ul className="nav nav-sm flex-column">
-                    <li className="nav-item">
-                      <Link to={"/addcategories"}  className="nav-link">
-                        Add Categories
-                      </Link>
-                      <Link to={"/additems"}  className="nav-link">
-                        Add Items
-                      </Link>
-                    </li>
-
-                  </ul>
-                </div>
+                  ➤ Add Categories
+                </Link>
               </li>
-
-               <li className="nav-item">
-               
-                 <Link to={"/users"} className="nav-link">
-                  <i className="bi bi-people"></i> Users
-                 </Link>
-                           
-              </li>
-
-                <li className="nav-item">
-                <a
-                  className="nav-link collapsed"
-                  href="#sidebar-exercises"
-                  data-bs-toggle="collapse"
-                  role="button"
-                  aria-expanded="false"
-                  aria-controls="sidebar-exercises"
+               <li className="list-none">
+                <Link
+                  to="/additems"
+                  className="block px-3 py-2 text-sm rounded-lg text-gray-600 dark:text-gray-300 
+                  hover:bg-gray-100 dark:hover:bg-gray-800 transition-all hover:pl-4"
                 >
-                <i className="bi bi-person-arms-up"></i> Exercises
-                </a>
-                <div className="collapse" id="sidebar-exercises">
-                  <ul className="nav nav-sm flex-column">
-                    <li className="nav-item">
-                      <Link to={"/addexercisecategories"}  className="nav-link">
-                        Add Categories
-                      </Link>
-                      <Link to={"/addexercises"}  className="nav-link">
-                        Add Exercises
-                      </Link>
-                    </li>
-
-                  </ul>
-                </div>
+                  ➤ Add Items
+                </Link>
               </li>
-
-               <li className="nav-item">
-               
-                 <Link to={"/challanges"} className="nav-link">
-                  <i className="bi bi-person-walking"></i> Challanges
-                 </Link>
-               
-              
-              </li>
-
-
             </ul>
+          )}
+        </li>
 
-            <hr className="navbar-divider my-4 opacity-70" />
-            <div className="mt-auto"></div>
+        {/* Users */}
+         <li className="list-none mb-2">
+          <Link
+            to="/users"
+            className={`flex items-center gap-3 px-4 py-2 rounded-lg transition hover:bg-gray-100 dark:hover:bg-gray-800 hover:pl-5
+             ${location.pathname === "/users" ? activeClass : "text-gray-700 dark:text-gray-200"}`}
+          >
+            <i className="bi bi-people text-lg"></i>
+            Users
+          </Link>
+        </li>
 
-            <div className="my-4 px-lg-6 position-relative">
-              <div className="dropup w-full">
-                <button
-                  className="btn-primary d-flex w-full py-3 ps-3 pe-4 align-items-center shadow shadow-3-hover rounded-3"
-                  type="button"
-                  data-bs-toggle="dropdown"
-                  aria-expanded="false"
+        {/* Exercises */}
+         <li className="list-none">
+          <button
+            onClick={() => setOpenExercises(!openExercises)}
+            className="w-full flex items-center justify-between px-4 py-2 rounded-lg 
+            text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800 
+            transition-all duration-200 hover:pl-5"
+          >
+            <span className="flex items-center gap-3">
+              <i className="bi bi-person-arms-up text-lg"></i> Exercises
+            </span>
+            <i className={`bi bi-chevron-down transition-transform duration-300 ${openExercises ? "rotate-180" : ""}`}></i>
+          </button>
+
+          {openExercises && (
+            <ul className="ml-10 mt-1 space-y-1 animate-slideDown">
+               <li className="list-none">
+                <Link
+                  to="/addexercisecategories"
+                  className="block px-3 py-2 text-sm rounded-lg text-gray-600 dark:text-gray-300 
+                  hover:bg-gray-100 dark:hover:bg-gray-800 transition-all hover:pl-4"
                 >
-                  <span className="me-3">
-                    <img
-                      alt="..."
-                      src="https://clever.webpixels.io/img/people/img-profile.jpg"
-                      className="avatar avatar-sm rounded-circle"
-                    />
-                  </span>
-                  <span className="flex-fill text-start text-sm font-semibold">
-                    {firstname}
-                  </span>
-                  <span>
-                    <i className="bi bi-chevron-expand text-white text-opacity-70"></i>
-                  </span>
-                </button>
-                <div className="dropdown-menu dropdown-menu-end w-full">
-                  <div className="dropdown-header">
-                    <span className="d-block text-sm text-muted mb-1">Signed in as</span>
-                    <span className="d-block text-heading font-semibold">{firstname}</span>
-                  </div>
-                  <div className="dropdown-divider"></div>
-                  <Link to={"/"} className="dropdown-item" href="#">
-                    <i className="bi bi-house me-3"></i>Home
-                  </Link>
-                
-                  <div className="dropdown-divider"></div>
-                  <Link to={"/logout"} className="dropdown-item" href="#">
-                    <i className="bi bi-box-arrow-left me-3"></i>Logout
-                  </Link>
-                </div>
-              </div>
-               <div className="nav-item px-3 py-2 mt-2">
-              {/* <div className="d-flex gap-3 justify-content-center align-items-center">
-                <div>
-                  <i className="bi bi-moon-stars me-2 text-warning"></i>
-                  <span className="text-heading text-sm fw-bold">Dark mode</span>
-                </div>
-                <div className="ms-auto">
-                  <div className="form-check form-switch me-n2">
-                    <input
-                      className="form-check-input"
-                      type="checkbox"
-                      id="switch-dark-mode"
-                      checked={isDarkMode}
-                      onChange={handleToggle}
-                    />
-                  </div>
-                </div>
-              </div> */}
+                  ➤ Add Categories
+                </Link>
+              </li>
+               <li className="list-none">
+                <Link
+                  to="/addexercises"
+                  className="block px-3 py-2 text-sm rounded-lg text-gray-600 dark:text-gray-300 
+                  hover:bg-gray-100 dark:hover:bg-gray-800 transition-all hover:pl-4"
+                >
+                  ➤ Add Exercises
+                </Link>
+              </li>
+            </ul>
+          )}
+        </li>
+
+        {/* Challenges */}
+        <li className="list-none">
+          <Link
+            to="/challanges"
+            className={`flex items-center gap-3 px-4 py-2 rounded-lg transition hover:bg-gray-100 dark:hover:bg-gray-800 hover:pl-5
+            ${location.pathname === "/challanges" ? activeClass : "text-gray-700 dark:text-gray-200"}`}
+          >
+            <i className="bi bi-person-walking text-lg"></i>
+            Challenges
+          </Link>
+        </li>
+
+      </ul>
+
+      {/* Divider */}
+      <hr className="my-6 border-gray-300 dark:border-gray-700" />
+
+      {/* User Dropdown */}
+      {/* <div className="mt-auto relative">
+        <button
+          onClick={() => setOpenUserDropdown(!openUserDropdown)}
+          className="w-full flex items-center justify-between px-4 py-3 rounded-lg 
+          bg-primary text-white shadow-md hover:shadow-lg transition"
+        >
+          <span className="flex items-center gap-3">
+            <img
+              src="https://clever.webpixels.io/img/people/img-profile.jpg"
+              className="h-9 w-9 rounded-full border-2 border-white"
+              alt=""
+            />
+            {firstname}
+          </span>
+          <i className="bi bi-chevron-expand text-xl"></i>
+        </button>
+
+        {openUserDropdown && (
+          <div className="absolute w-full mt-2 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-lg shadow-xl p-3 animate-slideDown z-50">
+            
+            <div className="px-3 pb-2 text-sm">
+              <p className="text-gray-500 dark:text-gray-400">Signed in as</p>
+              <p className="font-semibold">{firstname}</p>
             </div>
-            </div>
+
+            <hr className="my-2 border-gray-300 dark:border-gray-700" />
+
+            <Link
+              to="/"
+              className="block px-3 py-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition"
+            >
+              <i className="bi bi-house me-2"></i>
+              Home
+            </Link>
+
+            <hr className="my-2 border-gray-300 dark:border-gray-700" />
+
+            <Link
+              to="/logout"
+              className="block px-3 py-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition"
+            >
+              <i className="bi bi-box-arrow-left me-2"></i>
+              Logout
+            </Link>
           </div>
-        </div>
-      </nav>
-    </>
-  )
+        )}
+      </div> */}
+    </nav>
+  );
 }
 
-export default Header
+export default Header;

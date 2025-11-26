@@ -20,6 +20,7 @@ import Users from './Components/Users';
 import Addexercisecategories from './Components/Addexercisecategories';
 import Addexercises from './Components/Addexercises';
 import Challanges from './Components/Challanges';
+import Userdetails from './Components/Userdetails';
 
 const isAuthenticated = () => {
   const userId = localStorage.getItem('getfituserid');
@@ -101,6 +102,14 @@ function App() {
             element={
               <PrivateRoute>
                 <Challanges />
+              </PrivateRoute>
+            }
+          />
+            <Route
+            path="/details/:id"
+            element={
+              <PrivateRoute>
+                <Userdetails />
               </PrivateRoute>
             }
           />

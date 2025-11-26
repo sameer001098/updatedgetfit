@@ -7,15 +7,16 @@ function Addexercisecategories() {
     const [categoryImage, setCategoryImage] = useState(null);
     const [message, setMessage] = useState('');
     const [isSubmitting, setIsSubmitting] = useState(false);
-       const [categories, setCategories] = useState([]);
-
+    const [categories, setCategories] = useState([]);
+    const [categoryWorkoutType, setCategoryWorkoutType] = useState('');
     const handleSubmit = async () => {
         setIsSubmitting(true); // 👈 Start loading
         setMessage(''); // Optional: Clear previous messages
 
         const formData = new FormData();
         formData.append('categoryname', categoryName);
-        formData.append('categorytype', 'workout');
+        formData.append('categorytype', categoryWorkoutType);
+
         if (categoryImage) {
             formData.append('categoryimage', categoryImage);
         }
@@ -31,6 +32,7 @@ function Addexercisecategories() {
             if (result.ResponseCode === '200') {
                 setMessage('Category added successfully!');
                 setCategoryName('');
+                setCategoryWorkoutType('');
                 setCategoryImage(null);
             } else {
                 setMessage(result.ResponseMsg || 'Something went wrong');
@@ -43,7 +45,7 @@ function Addexercisecategories() {
         }
     };
 
-     const fetchCategories = async () => {
+    const fetchCategories = async () => {
         try {
             const res = await fetch('https://projects.funtashtechnologies.com/getfitapi/getallcategories.php');
             const data = await res.json();
@@ -86,6 +88,21 @@ function Addexercisecategories() {
                             onChange={(e) => setCategoryName(e.target.value)}
                         />
                     </div>
+                    <div>
+                        <label className="form-label">Workout Category Type</label>
+                        <select
+                            className="form-select"
+                            value={categoryWorkoutType}
+                            onChange={(e) => setCategoryWorkoutType(e.target.value)}
+                        >
+                            <option value="">Select Type</option>
+                            <option value="Home Workout">Home Workout</option>
+                            <option value="Intense Workout">Intense Workout</option>
+                            <option value="Yoga Workout">Yoga Workout</option>
+                            <option value="Gym Workout">Gym Workout</option>
+                        </select>
+                    </div>
+
 
                     <div>
                         <label className="form-label">Category Image</label>
@@ -110,26 +127,29 @@ function Addexercisecategories() {
 
                     <hr className="my-3" />
 
-                      <h1 className="h3 ls-tight mb-3"> Categories</h1>
+                    <h1 className="h3 ls-tight mb-3"> Categories</h1>
 
                     <div className="row g-6 mt-1">
-                        {categories.map((cat) => (
-                            <div className="col-xl-3 col-sm-6 mt-0" key={cat.id}>
-                                <div className="card">
-                                    <div className="card-body text-center">
-                                        <img
-                                            src={`${cat.categoryimage}` || 'https://via.placeholder.com/100x100?text=No+Image'}
-                                            alt={cat.categoryname}
-                                            className="mx-auto mb-3"
-                                            style={{ width: '100px', height: '100px', objectFit: 'cover' }}
-                                        />
-                                        <Link className='h5 d-block my-6' to="#">
-                                            {cat.categoryname}
-                                        </Link>
+                        {categories
+                            .filter(cat => cat.categorytype !== "calories")
+                            .map((cat) => (
+                                <div className="col-xl-3 col-sm-6 mt-0" key={cat.id}>
+                                    <div className="card">
+                                        <div className="card-body text-center">
+                                            <img
+                                                src={`${cat.categoryimage}` || 'https://via.placeholder.com/100x100?text=No+Image'}
+                                                alt={cat.categoryname}
+                                                className="mx-auto mb-3"
+                                                style={{ width: '100px', height: '100px', objectFit: 'cover' }}
+                                            />
+                                            <Link className='h5 d-block my-6' to="#">
+                                                {cat.categoryname}
+                                            </Link>
+                                            <span class="badge bg-body-secondary text-success me-2 text-sm">   {cat.categorytype}</span>
+                                        </div>
                                     </div>
                                 </div>
-                            </div>
-                        ))}
+                            ))}
                     </div>
                 </div>
             </main>

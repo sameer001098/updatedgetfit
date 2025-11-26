@@ -164,7 +164,7 @@ const handleDelete = async (id) => {
     return (
         <div className='flex-lg-1 h-screen overflow-y-lg-auto'>
             <Topbar />
-            <main className="py-6 px-3 bg-surface-secondary">
+            <main className="py-6 px-3 bg-surface-secondary ml-[250px]">
                 <div className="container-fluid max-w-screen-lg vstack gap-5">
                     <div
                         className="modal"

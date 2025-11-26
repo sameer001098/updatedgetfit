@@ -60,7 +60,7 @@ function Dashboard() {
         <div className='flex-lg-1 h-screen overflow-y-lg-auto'>
             <Topbar />
 
-            <main className="py-6 bg-surface-secondary">
+            <main className="py-6 bg-surface-secondary ml-250px">
                 <div
                     className="offcanvas offcanvas-end w-full w-lg-1/3"
                     data-bs-scroll="true"

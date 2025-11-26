@@ -1,3 +1,8 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+
 @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@100..900&display=swap');
 [data-theme=light],
 :root:not([data-theme=dark]) {
@@ -14568,4 +14573,28 @@ span.flatpickr-weekday {
 /*# sourceMappingURL=main.css.map */
 .mw-100{
     max-width: 100px;
+}
+
+/* Only apply default columns if no Tailwind class exists */
+.grid:not([class*="grid-cols"]) {
+    grid-template-columns: repeat(var(--x-columns, 12), 1fr);
+}
+.custom-grid {
+  display: grid;
+  gap: 1.25rem; /* or whatever you like */
+}
+.grid:not([class*="grid-cols"]) {
+  grid-template-columns: repeat(var(--x-columns, 12), 1fr);
+}
+
+
+@media (min-width:300px) AND (max-width : 767px) {
+    .ml-250px{
+        margin-left: 0px !important; 
+    }
+}
+@media (min-width:768px) AND (max-width : 4007px) {
+    .ml-250px{
+        margin-left: 255px !important;
+    }
 }

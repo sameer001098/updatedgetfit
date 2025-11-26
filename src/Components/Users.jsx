@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import Topbar from '../Layouts/Topbar';
 import axios from 'axios';
+import { Link } from 'react-router-dom';
 
 function Users() {
   const [usersData, setUsersData] = useState([]);
@@ -79,12 +80,12 @@ function Users() {
       <td>{user.email}</td>
       <td>{user.phone}</td>
       <td>
-        <button
+        <Link to={`/details/${user.id}`}
           className="btn btn-sm btn-neutral me-1"
-          onClick={() => handleView(user)}
+       
         >
           View
-        </button>
+        </Link>
         <button
           className="btn btn-sm btn-square btn-neutral text-danger-hover"
           onClick={() => handleDelete(user.id)}
@@ -99,9 +100,9 @@ function Users() {
     <div className="flex-lg-1 h-screen overflow-y-lg-auto">
       <Topbar />
 
-      <main className="py-6 px-3 bg-surface-secondary">
-        <div className="container-fluid max-w-screen-lg vstack gap-5">
-          <h1 className="h3 ls-tight mb-0">Users</h1>
+      <main className="py-6 px-3 bg-surface-secondary ml-[255px]">
+        <div className="container-fluid max-w-screen-lg vstack gap-2">
+          <h1 className="h3  mb-0">Users</h1>
 
           <ul className="nav nav-pills mb-3 w-100" id="pills-tab" role="tablist">
             <li className="nav-item w-50 pe-1" role="presentation">
