@@ -1,0 +1,21 @@
+# Enable Rewrite Engine
+RewriteEngine On
+
+# If a file or directory exists, serve it directly
+RewriteCond %{REQUEST_FILENAME} -f [OR]
+RewriteCond %{REQUEST_FILENAME} -d
+RewriteRule ^ - [L]
+
+# Otherwise, redirect all requests to index.html
+RewriteRule ^ index.html [L]
+
+# Optional: Prevent directory listing
+Options -Indexes
+
+# Optional: Cache static files for performance (1 month)
+<FilesMatch "\.(js|css|png|jpg|jpeg|gif|ico|svg)$">
+    Header set Cache-Control "max-age=2592000, public"
+</FilesMatch>
+
+# Optional: Handle 404 errors with React
+ErrorDocument 404 /index.html

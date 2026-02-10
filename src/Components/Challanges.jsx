@@ -1,10 +1,12 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import Topbar from '../Layouts/Topbar';
 
 function Challanges() {
     const [challenges, setChallenges] = useState([]);
     const [currentPage, setCurrentPage] = useState(1);
+    const navigate = useNavigate();
     const challengesPerPage = 10;
     const [formData, setFormData] = useState({
         title: '',
@@ -137,29 +139,33 @@ function Challanges() {
             video: null,
         });
     };
-const handleDelete = async (id) => {
-  if (!window.confirm('Are you sure you want to delete this challenge?')) return;
+    const handleDelete = async (id) => {
+        if (!window.confirm('Are you sure you want to delete this challenge?')) return;
 
-  try {
-    const response = await axios.post(
-      'https://projects.funtashtechnologies.com/getfitapi/caloriesitems/deletechallanges.php',
-      { id },  // JSON body with id
-      {
-        headers: { 'Content-Type': 'application/json' }  // JSON content-type header
-      }
-    );
+        try {
+            const response = await axios.post(
+                'https://projects.funtashtechnologies.com/getfitapi/caloriesitems/deletechallanges.php',
+                { id },  // JSON body with id
+                {
+                    headers: { 'Content-Type': 'application/json' }  // JSON content-type header
+                }
+            );
 
-    if (response.data.Result === "true") {
-      setChallenges((prev) => prev.filter((challenge) => challenge.id !== id));
-      alert('Challenge deleted successfully');
-    } else {
-      alert(response.data.ResponseMsg || 'Failed to delete challenge');
-    }
-  } catch (error) {
-    alert('Error deleting challenge');
-    console.error(error);
-  }
-};
+            if (response.data.Result === "true") {
+                setChallenges((prev) => prev.filter((challenge) => challenge.id !== id));
+                alert('Challenge deleted successfully');
+            } else {
+                alert(response.data.ResponseMsg || 'Failed to delete challenge');
+            }
+        } catch (error) {
+            alert('Error deleting challenge');
+            console.error(error);
+        }
+    };
+    const handleViewDetails = (id) => {
+        navigate(`/challenge-details/${id}`);
+    };
+
 
     return (
         <div className='flex-lg-1 h-screen overflow-y-lg-auto'>
@@ -312,8 +318,16 @@ const handleDelete = async (id) => {
                                                     className="btn btn-sm btn-neutral me-1"
                                                     onClick={() => handleView(item.id)}
                                                 >
+                                                    Edit
+                                                </button>
+
+                                                <button
+                                                    className="btn btn-sm btn-primary mx-2"
+                                                    onClick={() => handleViewDetails(item.id)}
+                                                >
                                                     View
                                                 </button>
+
                                                 <button
                                                     id={`delete-btn-${item.id}`}  // unique id for the delete button
                                                     className="btn btn-sm btn-square btn-neutral text-danger-hover"

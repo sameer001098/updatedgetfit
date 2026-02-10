@@ -7,6 +7,11 @@ function Users() {
   const [usersData, setUsersData] = useState([]);
   const [loading, setLoading] = useState(true);
   const [selectedUser, setSelectedUser] = useState(null);
+  const [connections, setConnections] = useState({
+    Users: [],
+    Trainers: [],
+  });
+  const [listType, setListType] = useState(null); // "users" | "trainers"
 
   const [trainersPage, setTrainersPage] = useState(1);
   const [usersPage, setUsersPage] = useState(1);
@@ -27,6 +32,33 @@ function Users() {
       .catch((err) => console.error('Error fetching users:', err))
       .finally(() => setLoading(false));
   };
+  const fetchConnections = async (userId, type) => {
+    try {
+      const formData = new FormData();
+      formData.append("userId", userId);
+
+      const res = await axios.post(
+        "https://projects.funtashtechnologies.com/getfitapi/getconnections.php",
+        formData
+      );
+
+      if (res.data?.Result === "true") {
+        setConnections({
+          Users: res.data.Users || [],
+          Trainers: res.data.Trainers || [],
+        });
+        setListType(type);
+
+        const modal = new window.bootstrap.Modal(
+          document.getElementById("connectionsModal")
+        );
+        modal.show();
+      }
+    } catch (err) {
+      console.error("Error fetching connections:", err);
+    }
+  };
+
 
   useEffect(() => {
     fetchUsers();
@@ -79,11 +111,29 @@ function Users() {
       <td>{user.firstname} {user.lastname}</td>
       <td>{user.email}</td>
       <td>{user.phone}</td>
+
+      {/* Buddy List */}
       <td>
-        <Link to={`/details/${user.id}`}
-          className="btn btn-sm btn-neutral me-1"
-       
+        <button
+          className="btn btn-sm btn-outline-primary"
+          onClick={() => fetchConnections(user.id, "users")}
         >
+          View
+        </button>
+      </td>
+
+      {/* Trainer List */}
+      <td>
+        <button
+          className="btn btn-sm btn-outline-success"
+          onClick={() => fetchConnections(user.id, "trainers")}
+        >
+          View
+        </button>
+      </td>
+
+      <td>
+        <Link to={`/details/${user.id}`} className="btn btn-sm btn-neutral me-1">
           View
         </Link>
         <button
@@ -95,6 +145,7 @@ function Users() {
       </td>
     </tr>
   );
+
 
   return (
     <div className="flex-lg-1 h-screen overflow-y-lg-auto">
@@ -143,6 +194,8 @@ function Users() {
                         <th>Fullname</th>
                         <th>Email</th>
                         <th>Phone</th>
+                        <th>Buddy List</th>
+                        <th>Trainer List</th>
                         <th>Action</th>
                       </tr>
                     </thead>
@@ -173,6 +226,9 @@ function Users() {
                         <th>Fullname</th>
                         <th>Email</th>
                         <th>Phone</th>
+                        <th>Buddy List</th>
+                        <th>Trainer List</th>
+
                         <th>Action</th>
                       </tr>
                     </thead>
@@ -248,6 +304,60 @@ function Users() {
           </div>
         </div>
       </div>
+      <div className="modal fade" id="connectionsModal" tabIndex="-1">
+        <div className="modal-dialog modal-lg modal-dialog-centered">
+          <div className="modal-content">
+            <div className="modal-header">
+              <h5 className="modal-title">
+                {listType === "users" ? "Buddy List" : "Trainer List"} (
+                {listType === "users"
+                  ? connections.Users.length
+                  : connections.Trainers.length}
+                )
+              </h5>
+              <button className="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+
+            <div className="modal-body">
+              <table className="table table-bordered">
+                <thead>
+                  <tr>
+                    <th>#</th>
+                    <th>Full Name</th>
+                    <th>Email</th>
+                    <th>Phone</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {(listType === "users"
+                    ? connections.Users
+                    : connections.Trainers
+                  ).length > 0 ? (
+                    (listType === "users"
+                      ? connections.Users
+                      : connections.Trainers
+                    ).map((item, index) => (
+                      <tr key={item.id}>
+                        <td>{index + 1}</td>
+                        <td>{item.firstname} {item.lastname}</td>
+                        <td>{item.email}</td>
+                        <td>{item.phone}</td>
+                      </tr>
+                    ))
+                  ) : (
+                    <tr>
+                      <td colSpan="4" className="text-center">
+                        No data found
+                      </td>
+                    </tr>
+                  )}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+
     </div>
   );
 }
