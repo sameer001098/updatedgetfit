@@ -55,9 +55,14 @@ function Challanges() {
             }));
         }
     };
-
     const handleSubmit = async (e) => {
         e.preventDefault();
+        const userId = localStorage.getItem("getfituserid");
+
+        if (!userId) {
+            alert("User ID not found. Please login again.");
+            return;
+        }
 
         const data = new FormData();
         data.append('title', formData.title);
@@ -67,6 +72,9 @@ function Challanges() {
         data.append('image', formData.image);
         data.append('video', formData.video);
 
+        data.append('status', 'Approved');
+        data.append('userid', userId);
+
         setLoading(true);
 
         try {
@@ -74,7 +82,9 @@ function Challanges() {
                 'https://projects.funtashtechnologies.com/getfitapi/challanges.php',
                 data
             );
+
             alert(response.data.ResponseMsg);
+
             setFormData({
                 title: '',
                 description: '',
@@ -82,6 +92,7 @@ function Challanges() {
                 reward: '',
                 image: null,
                 video: null,
+
             });
 
             const modalEl = document.getElementById('exampleModal');
@@ -89,6 +100,7 @@ function Challanges() {
             if (modalInstance) {
                 modalInstance.hide();
             }
+
         } catch (error) {
             console.error(error);
             alert('Something went wrong!');
@@ -96,6 +108,7 @@ function Challanges() {
             setLoading(false);
         }
     };
+
     const indexOfLast = currentPage * challengesPerPage;
     const indexOfFirst = indexOfLast - challengesPerPage;
     const currentChallenges = challenges.slice(indexOfFirst, indexOfLast);
@@ -164,6 +177,31 @@ function Challanges() {
     };
     const handleViewDetails = (id) => {
         navigate(`/challenge-details/${id}`);
+    };
+
+    const handleStatusChange = async (id, newStatus) => {
+        try {
+            const response = await axios.put(
+                'https://projects.funtashtechnologies.com/getfitapi/update_challenge_status.php',
+                { id, status: newStatus },
+                {
+                    headers: { 'Content-Type': 'application/json' }
+                }
+            );
+            if (response.data.Result === "true") {
+                alert(`Challenge ${newStatus} successfully!`);
+                setChallenges((prev) =>
+                    prev.map((item) =>
+                        item.id === id ? { ...item, status: newStatus } : item
+                    )
+                );
+            } else {
+                alert(response.data.ResponseMsg || "Failed to update status");
+            }
+        } catch (error) {
+            console.error(error);
+            alert("Something went wrong while updating status");
+        }
     };
 
 
@@ -318,14 +356,14 @@ function Challanges() {
                                                     className="btn btn-sm btn-neutral me-1"
                                                     onClick={() => handleView(item.id)}
                                                 >
-                                                    Edit
+                                                    <i className="bi bi-pencil-fill"></i>
                                                 </button>
 
                                                 <button
                                                     className="btn btn-sm btn-primary mx-2"
                                                     onClick={() => handleViewDetails(item.id)}
                                                 >
-                                                    View
+                                                    <i className="bi bi-eye-fill"></i>
                                                 </button>
 
                                                 <button
@@ -335,6 +373,19 @@ function Challanges() {
                                                 >
                                                     <i className="bi bi-trash3-fill"></i>
                                                 </button>
+                                                {item.status == "pending" && (
+                                                    <div className="d-inline-block ms-2">
+                                                        <select
+                                                            className="form-select form-select-sm"
+                                                            defaultValue="Pending"
+                                                            onChange={(e) => handleStatusChange(item.id, e.target.value)}
+                                                        >
+                                                            <option value="Pending" disabled>Pending</option>
+                                                            <option value="Approved">Approved</option>
+                                                            <option value="Rejected">Rejected</option>
+                                                        </select>
+                                                    </div>
+                                                )}
                                             </td>
                                         </tr>
                                     ))}

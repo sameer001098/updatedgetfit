@@ -8,6 +8,8 @@ function Challangedetails() {
     const [challenge, setChallenge] = useState(null);
     const [loading, setLoading] = useState(true);
     const [completedChallenges, setCompletedChallenges] = useState([]);
+    const [activeTab, setActiveTab] = useState("pending");
+    const [approvingId, setApprovingId] = useState(null);
 
     // Video modal state
     const [videoModal, setVideoModal] = useState({
@@ -46,6 +48,41 @@ function Challangedetails() {
         fetchDetails();
     }, [id]);
 
+    const handleStatusUpdate = async (rowId, status) => {
+        try {
+            setApprovingId(rowId);
+
+            const formData = new FormData();
+            formData.append("id", rowId);
+            formData.append("status", status);
+
+            const response = await axios.post(
+                "https://projects.funtashtechnologies.com/getfitapi/updatecompletechallanges.php",
+                formData
+            );
+
+            if (response.data.ResponseCode === "200") {
+                setCompletedChallenges((prev) =>
+                    prev.map((item) =>
+                        item.id === rowId
+                            ? { ...item, status: status.toLowerCase() }
+                            : item
+                    )
+                );
+            } else {
+                alert("Failed to update status");
+            }
+
+        } catch (error) {
+            console.error(error);
+            alert("Error updating status");
+        } finally {
+            setApprovingId(null);
+        }
+    };
+
+
+
     const openVideoModal = (src) => {
         setVideoModal({ isOpen: true, src });
     };
@@ -53,6 +90,10 @@ function Challangedetails() {
     const closeVideoModal = () => {
         setVideoModal({ isOpen: false, src: '' });
     };
+    const filteredChallenges = completedChallenges.filter(
+        (item) => item.status?.toLowerCase() == activeTab
+    );
+
 
     if (loading) return <p className="p-4">Loading...</p>;
     if (!challenge) return <p className="p-4">No data found</p>;
@@ -60,37 +101,17 @@ function Challangedetails() {
     return (
         <div className='flex-lg-1 h-screen overflow-y-lg-auto'>
             <Topbar />
-
             <main className="py-6 px-3 bg-surface-secondary ml-[250px]">
                 <div className="container-fluid max-w-screen-xl">
-
-                    {/* ================= MAIN CHALLENGE CARD ================= */}
                     <div className="card shadow-sm border-0 mb-4">
                         <div className="card-body p-4">
-                            <h2 className="mb-4 fw-bold">{challenge.title}</h2>
+
 
                             <div className="row">
-
-                                {/* LEFT SIDE MEDIA */}
                                 <div className="col-lg-6">
 
-                                    {/* IMAGE */}
-                                    {challenge.image && (
-                                        <div className="mb-4">
-                                            <h6 className="text-muted mb-2">Challenge Thumbnail</h6>
-                                            <div className="border rounded overflow-hidden">
-                                                <img
-                                                    src={challenge.image}
-                                                    alt="Challenge"
-                                                    className="w-100"
-                                                    style={{ maxHeight: "350px", objectFit: "cover", cursor: "pointer" }}
-                                                    onClick={() => openVideoModal(challenge.image)}
-                                                />
-                                            </div>
-                                        </div>
-                                    )}
 
-                                    {/* VIDEO */}
+
                                     {challenge.videopath && (
                                         <div className="mb-4">
                                             <div
@@ -112,21 +133,22 @@ function Challangedetails() {
                                         </div>
                                     )}
                                 </div>
-
-                                {/* RIGHT SIDE DETAILS */}
                                 <div className="col-lg-6">
                                     <div className="row">
-                                        <div className="col-md-6">
-                                            <div className="border rounded p-3 mb-3 bg-light">
-                                                <h6 className="text-muted">Description</h6>
+                                        <div className="col-md-12 my-auto d-flex flex-column justify-content-center h-100">
+                                            <div className=" rounded p-3 mb-3 bg-light">
+                                                <h2 className="mb-1 fw-bold">{challenge.title}</h2>
+
                                                 <p>{challenge.description || 'N/A'}</p>
+                                                <hr className="my-2" />
+                                                <div className=" rounded p-3 mb-3 bg-light">
+                                                    <h6 className="text-muted">Reward</h6>
+                                                    <h5 className="mb-0 text-success">Rs {challenge.reward || 0}</h5>
+                                                </div>
                                             </div>
                                         </div>
                                         <div className="col-md-6">
-                                            <div className="border rounded p-3 mb-3 bg-light">
-                                                <h6 className="text-muted">Reward</h6>
-                                                <h5 className="mb-0 text-success">Rs {challenge.reward || 0}</h5>
-                                            </div>
+
                                         </div>
                                     </div>
                                 </div>
@@ -134,13 +156,30 @@ function Challangedetails() {
                             </div>
                         </div>
                     </div>
-
                     <hr className="my-4" />
-
-                    {/* ================= COMPLETED CHALLENGES TABLE ================= */}
                     <div className="card shadow-sm border-0 mt-4">
                         <div className="card-body p-4">
                             <h4 className="mb-3 fw-bold">Completed Challenges</h4>
+
+                            <ul className="nav nav-tabs mb-3">
+                                <li className="nav-item">
+                                    <button
+                                        className={`nav-link ${activeTab === "pending" ? "active" : ""}`}
+                                        onClick={() => setActiveTab("pending")}
+                                    >
+                                        Pending
+                                    </button>
+                                </li>
+                                <li className="nav-item">
+                                    <button
+                                        className={`nav-link ${activeTab === "approved" ? "active" : ""}`}
+                                        onClick={() => setActiveTab("approved")}
+                                    >
+                                        Approved
+                                    </button>
+                                </li>
+                            </ul>
+
                             <div className="table-responsive">
                                 <table className="table table-hover align-middle">
                                     <thead className="table-light">
@@ -151,11 +190,11 @@ function Challangedetails() {
                                             <th>Title</th>
                                             <th>Description</th>
                                             <th>Video</th>
-                                            <th>Date</th>
+                                            {activeTab === "pending" && <th>Action</th>}
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        {completedChallenges.length > 0 ? completedChallenges.map((item, index) => (
+                                        {filteredChallenges.length > 0 ? filteredChallenges.map((item, index) => (
                                             <tr key={item.id}>
                                                 <td>{index + 1}</td>
                                                 <td>{item.firstname} {item.lastname}</td>
@@ -186,12 +225,41 @@ function Challangedetails() {
                                                         <span className="text-muted">No Video</span>
                                                     )}
                                                 </td>
-                                                <td>{new Date(item.created_at).toLocaleString()}</td>
+                                                {activeTab === "pending" && (
+                                                    <td>
+                                                        <div className="d-flex gap-2">
+                                                            <button
+                                                                className="btn btn-sm btn-success"
+                                                                disabled={approvingId === item.id}
+                                                                onClick={() => handleStatusUpdate(item.id, "Approved")}
+                                                            >
+                                                                {approvingId === item.id ? (
+                                                                    <>
+                                                                        <span className="spinner-border spinner-border-sm me-2"></span>
+                                                                        Updating...
+                                                                    </>
+                                                                ) : (
+                                                                    "Approve"
+                                                                )}
+                                                            </button>
+
+                                                            <button
+                                                                className="btn btn-sm btn-danger"
+                                                                disabled={approvingId === item.id}
+                                                                onClick={() => handleStatusUpdate(item.id, "Rejected")}
+                                                            >
+                                                                Reject
+                                                            </button>
+                                                        </div>
+
+                                                    </td>
+                                                )}
+
                                             </tr>
                                         )) : (
                                             <tr>
                                                 <td colSpan="7" className="text-center text-muted">
-                                                    No completed challenges found
+                                                    No  Challenges found
                                                 </td>
                                             </tr>
                                         )}
@@ -203,8 +271,6 @@ function Challangedetails() {
 
                 </div>
             </main>
-
-            {/* ================= VIDEO MODAL ================= */}
             {videoModal.isOpen && (
                 <div
                     className="position-fixed top-0 start-0 w-100 h-100 d-flex justify-content-center align-items-center bg-dark bg-opacity-75"
